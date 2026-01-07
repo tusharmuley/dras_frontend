@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { getDocuments } from "../services/documentService";
+import {
+  getDocuments,
+  createDocument,
+  getCategories,
+  getProjectCodes,
+} from "../services/documentService";
 import { getUser } from "../utils/auth";
 
 function Documents() {
@@ -24,6 +29,21 @@ function Documents() {
     previous_page: null,
   });
   const user = getUser();
+
+  // Add New Document modal and form state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [formValues, setFormValues] = useState({
+    title: "",
+    category: "",
+    project_code: "",
+    document_status: "PENDING",
+    file: null,
+  });
+  const [categories, setCategories] = useState([]);
+  const [projectCodes, setProjectCodes] = useState([]);
+  const [formLoading, setFormLoading] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [formSuccess, setFormSuccess] = useState("");
 
   // Fetch documents
   const fetchDocuments = async (status = null, page = 1) => {
@@ -89,6 +109,118 @@ function Documents() {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  // Fetch dropdown data when modal opens
+  useEffect(() => {
+    const fetchMeta = async () => {
+      try {
+        const [catRes, pcRes] = await Promise.all([
+          getCategories(),
+          getProjectCodes(),
+        ]);
+
+        const catResults =
+          catRes.data?.data?.results ||
+          catRes.data?.results ||
+          catRes.data?.data ||
+          catRes.data ||
+          [];
+
+        const pcResults =
+          pcRes.data?.data?.results ||
+          pcRes.data?.results ||
+          pcRes.data?.data ||
+          pcRes.data ||
+          [];
+
+        setCategories(Array.isArray(catResults) ? catResults : []);
+        setProjectCodes(Array.isArray(pcResults) ? pcResults : []);
+      } catch (e) {
+        // Silent failure; will be surfaced on submit if needed
+        // eslint-disable-next-line no-console
+        console.error("Failed to fetch categories/project codes", e);
+        setCategories([]);
+        setProjectCodes([]);
+      }
+    };
+
+    if (showAddModal) {
+      fetchMeta();
+    }
+  }, [showAddModal]);
+
+  const handleOpenAddModal = () => {
+    setFormError("");
+    setFormSuccess("");
+    setShowAddModal(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    setFormValues({
+      title: "",
+      category: "",
+      project_code: "",
+      document_status: "PENDING",
+      file: null,
+    });
+    setFormError("");
+    setFormSuccess("");
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === "file") {
+      setFormValues((prev) => ({
+        ...prev,
+        file: files && files[0] ? files[0] : null,
+      }));
+    } else {
+      setFormValues((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setFormError("");
+    setFormSuccess("");
+
+    const { title, category, project_code, document_status, file } =
+      formValues;
+
+    if (!title || !category || !project_code || !document_status || !file) {
+      setFormError("All fields are required to upload a document.");
+      return;
+    }
+
+    setFormLoading(true);
+    try {
+      await createDocument({
+        title,
+        category,
+        project_code,
+        document_status,
+        file,
+      });
+
+      setFormSuccess("Document uploaded successfully.");
+      // Refresh documents list
+      await fetchDocuments(activeStatus, 1);
+      // Close modal after a short delay
+      setTimeout(() => {
+        handleCloseAddModal();
+      }, 800);
+    } catch (err) {
+      setFormError(
+        err.response?.data?.message || "Failed to upload document."
+      );
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   // Get status badge color
@@ -211,6 +343,13 @@ function Documents() {
               <option value={100}>100</option>
             </select>
           </div>
+          <button
+            type="button"
+            onClick={handleOpenAddModal}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Add New
+          </button>
         </div>
 
         {/* Error Message */}
@@ -389,6 +528,143 @@ function Documents() {
           </div>
         )}
       </div>
+
+      {/* Add New Document Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Add New Document
+              </h2>
+              <button
+                type="button"
+                onClick={handleCloseAddModal}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            {formError && (
+              <div className="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 border border-red-200">
+                {formError}
+              </div>
+            )}
+
+            {formSuccess && (
+              <div className="mb-3 rounded-md bg-green-50 px-3 py-2 text-sm text-green-700 border border-green-200">
+                {formSuccess}
+              </div>
+            )}
+
+            <form onSubmit={handleFormSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formValues.title}
+                  onChange={handleFormChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  placeholder="Enter document title"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Category
+                </label>
+                <select
+                  name="category"
+                  value={formValues.category}
+                  onChange={handleFormChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  required
+                >
+                  <option value="">Select category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Project Code
+                </label>
+                <select
+                  name="project_code"
+                  value={formValues.project_code}
+                  onChange={handleFormChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  required
+                >
+                  <option value="">Select project code</option>
+                  {projectCodes.map((pc) => (
+                    <option key={pc.id} value={pc.id}>
+                      {pc.project_code}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Status
+                </label>
+                <select
+                  name="document_status"
+                  value={formValues.document_status}
+                  onChange={handleFormChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  required
+                >
+                  <option value="DRAFT">DRAFT</option>
+                  <option value="PENDING">PENDING</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  File
+                </label>
+                <input
+                  type="file"
+                  name="file"
+                  accept="*/*"
+                  onChange={handleFormChange}
+                  className="w-full text-sm text-gray-700"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleCloseAddModal}
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  disabled={formLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+                  disabled={formLoading}
+                >
+                  {formLoading ? "Uploading..." : "Upload Document"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

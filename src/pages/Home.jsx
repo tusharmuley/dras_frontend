@@ -4,7 +4,7 @@ import Documents from "../components/Documents";
 import Admin from "../components/Admin";
 import Users from "../components/Users";
 import Category from "../components/Category";
-import SiteCode from "../components/SiteCode";
+import ProjectCodes from "../components/ProjectCodes";
 import Profile from "../components/Profile";
 
 function Home() {
@@ -21,8 +21,8 @@ function Home() {
         return <Users />;
       case "category":
         return <Category />;
-      case "sitecode":
-        return <SiteCode />;
+      case "projectcode":
+        return <ProjectCodes />;
       case "profile":
         return <Profile />;
       default:

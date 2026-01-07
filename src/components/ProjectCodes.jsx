@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import {
-  getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
+  getProjectCodes,
+  createProjectCode,
+  updateProjectCode,
+  deleteProjectCode,
 } from "../services/documentService";
 
-function Category() {
-  const [categories, setCategories] = useState([]);
+function ProjectCodes() {
+  const [projectCodes, setProjectCodes] = useState([]);
   const [pagination, setPagination] = useState({
     current_page: 1,
     total_pages: 1,
@@ -24,14 +24,14 @@ function Category() {
   const [editingId, setEditingId] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
 
-  const fetchCategories = async (page = 1) => {
+  const fetchProjectCodes = async (page = 1) => {
     setLoading(true);
     setError("");
     try {
-      const res = await getCategories({ page, page_size: pageSize });
+      const res = await getProjectCodes({ page, page_size: pageSize });
       const data = res.data?.data || {};
       const results = data.results || [];
-      setCategories(Array.isArray(results) ? results : []);
+      setProjectCodes(Array.isArray(results) ? results : []);
       setPagination({
         current_page: data.current_page || 1,
         total_pages: data.total_pages || 1,
@@ -41,7 +41,7 @@ function Category() {
       });
     } catch (err) {
       setError(
-        err.response?.data?.message || "Failed to fetch categories."
+        err.response?.data?.message || "Failed to fetch project codes."
       );
     } finally {
       setLoading(false);
@@ -49,7 +49,7 @@ function Category() {
   };
 
   useEffect(() => {
-    fetchCategories(1);
+    fetchProjectCodes(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSize]);
 
@@ -63,35 +63,35 @@ function Category() {
 
     try {
       if (editingId) {
-        await updateCategory(editingId, { category: formValue.trim() });
-        setSuccess("Category updated successfully.");
+        await updateProjectCode(editingId, { project_code: formValue.trim() });
+        setSuccess("Project code updated successfully.");
       } else {
-        await createCategory({ category: formValue.trim() });
-        setSuccess("Category created successfully.");
+        await createProjectCode({ project_code: formValue.trim() });
+        setSuccess("Project code created successfully.");
       }
 
       setFormValue("");
       setEditingId(null);
-      await fetchCategories(1);
+      await fetchProjectCodes(1);
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          "Failed to save category. Check your permissions."
+          "Failed to save project code. Check your permissions."
       );
     } finally {
       setFormLoading(false);
     }
   };
 
-  const handleEdit = (cat) => {
-    setEditingId(cat.id);
-    setFormValue(cat.category);
+  const handleEdit = (pc) => {
+    setEditingId(pc.id);
+    setFormValue(pc.project_code);
     setSuccess("");
     setError("");
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this category?")) {
+    if (!window.confirm("Are you sure you want to delete this project code?")) {
       return;
     }
 
@@ -99,13 +99,13 @@ function Category() {
     setError("");
     setSuccess("");
     try {
-      await deleteCategory(id);
-      setSuccess("Category deleted successfully.");
-      await fetchCategories(1);
+      await deleteProjectCode(id);
+      setSuccess("Project code deleted successfully.");
+      await fetchProjectCodes(1);
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          "Failed to delete category. Check your permissions."
+          "Failed to delete project code. Check your permissions."
       );
     } finally {
       setLoading(false);
@@ -114,7 +114,7 @@ function Category() {
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.total_pages) {
-      fetchCategories(newPage);
+      fetchProjectCodes(newPage);
     }
   };
 
@@ -122,10 +122,10 @@ function Category() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Category Management
+          Project Code Management
         </h1>
         <p className="text-gray-600">
-          Create, update, and manage document categories.
+          Create, update, and manage project codes.
         </p>
       </div>
 
@@ -136,13 +136,13 @@ function Category() {
         >
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {editingId ? "Edit Category" : "New Category"}
+              {editingId ? "Edit Project Code" : "New Project Code"}
             </label>
             <input
               type="text"
               value={formValue}
               onChange={(e) => setFormValue(e.target.value)}
-              placeholder="Enter category name"
+              placeholder="Enter project code"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
             />
           </div>
@@ -154,8 +154,8 @@ function Category() {
             {formLoading
               ? "Saving..."
               : editingId
-              ? "Update Category"
-              : "Add Category"}
+              ? "Update Project Code"
+              : "Add Project Code"}
           </button>
         </form>
 
@@ -176,7 +176,7 @@ function Category() {
 
         <div className="flex items-center justify-between mt-2">
           <div className="text-sm text-gray-700">
-            Total categories: {pagination.total_objects}
+            Total project codes: {pagination.total_objects}
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-700">Items per page:</span>
@@ -195,16 +195,16 @@ function Category() {
         <div className="overflow-x-auto mt-4">
           {loading ? (
             <div className="text-center py-6 text-gray-600">Loading...</div>
-          ) : categories.length === 0 ? (
+          ) : projectCodes.length === 0 ? (
             <div className="text-center py-6 text-gray-500">
-              No categories found.
+              No project codes found.
             </div>
           ) : (
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
+                    Project Code
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Created At
@@ -215,15 +215,15 @@ function Category() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {categories.map((cat) => (
-                  <tr key={cat.id} className="hover:bg-gray-50">
+                {projectCodes.map((pc) => (
+                  <tr key={pc.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {cat.category}
+                      {pc.project_code}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {cat.created_datetime
+                      {pc.created_datetime
                         ? new Date(
-                            cat.created_datetime
+                            pc.created_datetime
                           ).toLocaleDateString("en-US", {
                             year: "numeric",
                             month: "short",
@@ -234,14 +234,14 @@ function Category() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                       <button
                         type="button"
-                        onClick={() => handleEdit(cat)}
+                        onClick={() => handleEdit(pc)}
                         className="text-blue-600 hover:text-blue-800"
                       >
                         Edit
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleDelete(cat.id)}
+                        onClick={() => handleDelete(pc.id)}
                         className="text-red-600 hover:text-red-800"
                       >
                         Delete
@@ -282,5 +282,6 @@ function Category() {
   );
 }
 
-export default Category;
+export default ProjectCodes;
+
 

@@ -21,16 +21,17 @@ function Sidebar({ activeItem, setActiveItem }) {
       { id: "admin", label: "Admin", icon: "👤" },
       { id: "users", label: "Users", icon: "👥" },
       { id: "category", label: "Category", icon: "📁" },
-      { id: "sitecode", label: "Site Code", icon: "🔑" },
+      { id: "projectcode", label: "Project Code", icon: "🔑" },
       { id: "profile", label: "Profile", icon: "⚙️" },
     ];
 
     if (role === "super_admin") {
+      // Super admin: full access (documents, admin, users, category, project codes, profile)
       return allItems;
     } else if (role === "admin") {
-      // Admin: home, users, profile (NO category, sitecode, admin)
+      // Admin: home, users, category, profile (NO project codes, admin panel)
       return allItems.filter(item => 
-        ["home", "users", "profile"].includes(item.id)
+        ["home", "users", "category", "profile"].includes(item.id)
       );
     } else if (role === "employee") {
       // Employee: only home and profile
