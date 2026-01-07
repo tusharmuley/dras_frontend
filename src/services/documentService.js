@@ -132,3 +132,13 @@ export const deleteProjectCode = async (projectCodeId) => {
   return apiClient.delete(`/project-code/${projectCodeId}/`);
 };
 
+// Get current user's profile
+export const getUserProfile = async () => {
+  return apiClient.get("/profile/");
+};
+
+// Update current user's profile
+export const updateUserProfile = async (payload) => {
+  return apiClient.put("/profile/", payload);
+};
+
