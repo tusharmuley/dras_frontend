@@ -385,9 +385,9 @@ function Documents() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     UID
-                  </th>
+                  </th> */}
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Uploaded By
                   </th>
@@ -424,14 +424,14 @@ function Documents() {
                         {doc.current_status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    {/* <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{doc.uid || "N/A"}</div>
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {doc.uploaded_by?.first_name} {doc.uploaded_by?.last_name}
                       </div>
-                      <div className="text-xs text-gray-500">{doc.uploaded_by?.username}</div>
+                      <div className="text-xs text-gray-500">{doc.uploaded_by?.role}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{formatDate(doc.created_at)}</div>
