@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import Sidebar from "../components/Sidebar";
 import Documents from "../components/Documents";
 import Admin from "../components/Admin";
-import Users from "../components/Users";
+import Employee from "../components/Employee";
 import Category from "../components/Category";
 import ProjectCodes from "../components/ProjectCodes";
 import Profile from "../components/Profile";
@@ -17,8 +17,8 @@ function Home() {
         return <Documents key="home" />;
       case "admin":
         return <Admin key="admin" />;
-      case "users":
-        return <Users key="users" />;
+      case "employee":
+        return <Employee key="employee" />;
       case "category":
         return <Category key="category" />;
       case "projectcode":

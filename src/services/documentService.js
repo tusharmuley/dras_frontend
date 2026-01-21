@@ -142,3 +142,69 @@ export const updateUserProfile = async (payload) => {
   return apiClient.put("/profile/", payload);
 };
 
+// Get admins list with pagination
+export const getAdmins = async (params = {}) => {
+  const queryParams = new URLSearchParams();
+
+  if (params.page) {
+    queryParams.append("page", params.page);
+  }
+  if (params.page_size) {
+    queryParams.append("page_size", params.page_size);
+  }
+
+  const queryString = queryParams.toString();
+  const url = `/admin/${queryString ? `?${queryString}` : ""}`;
+
+  return apiClient.get(url);
+};
+
+// Create a new admin
+export const createAdmin = async (payload) => {
+  return apiClient.post("/admin/", payload);
+};
+
+// Update an admin
+export const updateAdmin = async (payload) => {
+  return apiClient.put("/admin/", payload);
+};
+
+// Delete an admin (soft delete by setting is_active to false)
+export const deleteAdmin = async (user_id) => {
+  return apiClient.delete("/admin/", { data: { user_id } });
+};
+
+// Get employees list with pagination
+export const getEmployees = async (params = {}) => {
+  const queryParams = new URLSearchParams();
+
+  if (params.page) {
+    queryParams.append("page", params.page);
+  }
+  if (params.page_size) {
+    queryParams.append("page_size", params.page_size);
+  }
+
+  const queryString = queryParams.toString();
+  const url = `/employee/${queryString ? `?${queryString}` : ""}`;
+
+  return apiClient.get(url);
+};
+
+// Create a new employee
+// For super_admin: admin_id is required
+// For admin: admin_id is not needed (backend uses their own id as created_by)
+export const createEmployee = async (payload) => {
+  return apiClient.post("/employee/", payload);
+};
+
+// Update an employee
+export const updateEmployee = async (payload) => {
+  return apiClient.put("/employee/", payload);
+};
+
+// Delete an employee (soft delete by setting is_active to false)
+export const deleteEmployee = async (user_id) => {
+  return apiClient.delete("/employee/", { data: { user_id } });
+};
+

@@ -19,19 +19,19 @@ function Sidebar({ activeItem, setActiveItem }) {
     const allItems = [
       { id: "home", label: "Home", icon: "🏠" },
       { id: "admin", label: "Admin", icon: "👤" },
-      { id: "users", label: "Users", icon: "👥" },
+      { id: "employee", label: "Employee", icon: "👥" },
       { id: "category", label: "Category", icon: "📁" },
       { id: "projectcode", label: "Project Code", icon: "🔑" },
       { id: "profile", label: "Profile", icon: "⚙️" },
     ];
 
     if (role === "super_admin") {
-      // Super admin: full access (documents, admin, users, category, project codes, profile)
+      // Super admin: full access (documents, admin, employee, category, project codes, profile)
       return allItems;
     } else if (role === "admin") {
-      // Admin: home, users, category, profile (NO project codes, admin panel)
+      // Admin: home, employee, category, profile (NO project codes, admin panel)
       return allItems.filter(item => 
-        ["home", "users", "category", "profile"].includes(item.id)
+        ["home", "employee", "category", "profile"].includes(item.id)
       );
     } else if (role === "employee") {
       // Employee: only home and profile
