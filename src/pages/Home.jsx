@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Sidebar from "../components/Sidebar";
 import Documents from "../components/Documents";
 import Admin from "../components/Admin";
@@ -10,29 +10,29 @@ import Profile from "../components/Profile";
 function Home() {
   const [activeItem, setActiveItem] = useState("home");
 
-  // Render content based on active menu item
-  const renderContent = () => {
+  // Render content based on active menu item - memoized to prevent unnecessary re-renders
+  const renderContent = useMemo(() => {
     switch (activeItem) {
       case "home":
-        return <Documents />;
+        return <Documents key="home" />;
       case "admin":
-        return <Admin />;
+        return <Admin key="admin" />;
       case "users":
-        return <Users />;
+        return <Users key="users" />;
       case "category":
-        return <Category />;
+        return <Category key="category" />;
       case "projectcode":
-        return <ProjectCodes />;
+        return <ProjectCodes key="projectcode" />;
       case "profile":
-        return <Profile />;
+        return <Profile key="profile" />;
       default:
         return (
-          <div>
+          <div key="notfound">
             <h1 className="text-3xl font-bold text-gray-900">Page Not Found</h1>
           </div>
         );
     }
-  };
+  }, [activeItem]);
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -42,7 +42,7 @@ function Home() {
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-8">
-          {renderContent()}
+          {renderContent}
         </div>
       </div>
     </div>

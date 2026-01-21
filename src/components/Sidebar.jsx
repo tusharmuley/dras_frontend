@@ -92,13 +92,18 @@ function Sidebar({ activeItem, setActiveItem }) {
           {menuItems.map((item) => (
             <li key={item.id}>
               <button
-                onClick={() => setActiveItem(item.id)}
+                onClick={() => {
+                  if (activeItem !== item.id) {
+                    setActiveItem(item.id);
+                  }
+                }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                   activeItem === item.id
                     ? "bg-blue-600 text-white"
                     : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
                 title={isCollapsed ? item.label : ""}
+                disabled={activeItem === item.id}
               >
                 <span className="text-xl">{item.icon}</span>
                 {!isCollapsed && (

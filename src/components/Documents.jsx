@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   getDocuments,
   createDocument,
@@ -44,6 +44,7 @@ function Documents() {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
+  const isInitialMount = useRef(true);
 
   // Fetch documents
   const fetchDocuments = async (status = null, page = 1) => {
@@ -89,8 +90,14 @@ function Documents() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeStatus, pageSize]);
 
-  // Handle search with debounce
+  // Handle search with debounce - only trigger if searchQuery actually has a value or changed from a previous value
   useEffect(() => {
+    // Skip on initial mount to prevent double API call
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
     const timer = setTimeout(() => {
       fetchDocuments(activeStatus, 1);
     }, 500);
